@@ -6,7 +6,7 @@ const emailfaker = faker.internet.email();
 describe("Atualização de filmes", function () {
   var novoUsuario;
   var token;
-  let ultimoFilme;
+  var movieId;
 
   before(function () {
     cy.criarUsuario().then((dados) => {
@@ -15,28 +15,22 @@ describe("Atualização de filmes", function () {
     cy.logarUsuario().then((response) => {
       token = response.body.accessToken;
     });
-    cy.promoverUsuarioAdmin();
-    cy.criarFilme();
-  });
-  after(function () {
-    cy.deletarUsuario(novoUsuario.id);
-  });
-
-  it("Deve ser possível buscar por uma lista de filmes e encontrar o id do ultimo filme", function () {
-    cy.request("GET", "/movies").then(function (response) {
-      expect(response.status).to.equal(200);
-      expect(response.body).to.be.an("array");
-      const listaDeFilmes = response.body;
-      ultimoFilme = listaDeFilmes[listaDeFilmes.length - 1];
-      cy.log(ultimoFilme);
+    cy.promoverUsuarioAdmin().then(function () {
+      cy.criarFilme().then(function (response) {
+        movieId = response.body.id;
+      });
     });
   });
-  it("Deve ser possivel atualizar um filme por id", function () {
+  after(function () {
+    cy.deletarFilme(movieId);
+    cy.deletarUsuario(novoUsuario.id);
+  });
+  it("Deve ser possivel atualizar um filme com id válido", function () {
     cy.fixture("Movies/requests/bodyAtualizarFilme.json").then(
       (atualizarFilme) => {
         cy.request({
           method: "PUT",
-          url: "/movies/" + ultimoFilme.id,
+          url: "/movies/" + movieId,
           body: atualizarFilme,
           headers: {
             Authorization: "Bearer " + token,
@@ -55,6 +49,27 @@ describe("Atualização de filmes", function () {
           expect(response.headers).to.have.property("server");
           expect(response.headers).to.have.property("via");
           expect(response.headers).to.have.property("x-powered-by");
+        });
+      }
+    );
+  });
+  it("Não deve ser possivel atualizar um filme com dados nulos", function () {
+    cy.fixture("Movies/responses/bodyErroAtualizarFilmeNulo").as(
+      "erroAtualizarFilmeNulo"
+    );
+    cy.fixture("Movies/requests/bodyAtualizarFilmeNulo.json").then(
+      (atualizarFilmeNulo) => {
+        cy.request({
+          method: "PUT",
+          url: "/movies/" + movieId,
+          body: atualizarFilmeNulo,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(this.erroAtualizarFilmeNulo);
         });
       }
     );

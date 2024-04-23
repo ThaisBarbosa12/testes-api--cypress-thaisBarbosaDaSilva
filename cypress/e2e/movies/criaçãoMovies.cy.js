@@ -6,6 +6,7 @@ const emailfaker = faker.internet.email();
 describe("Criação de filmes", function () {
   var novoUsuario;
   var token;
+  var movieId;
 
   before(function () {
     cy.criarUsuario().then((dados) => {
@@ -14,11 +15,11 @@ describe("Criação de filmes", function () {
     cy.logarUsuario().then((response) => {
       token = response.body.accessToken;
     });
-
     cy.promoverUsuarioAdmin();
   });
 
   after(function () {
+    cy.deletarFilme(movieId);
     cy.deletarUsuario(novoUsuario.id);
   });
 
@@ -37,6 +38,8 @@ describe("Criação de filmes", function () {
         Authorization: "Bearer " + token,
       },
     }).then(function (response) {
+      cy.log(response);
+      movieId = response.body.id;
       expect(response.status).to.equal(201);
       expect(response.headers).to.have.property("access-control-allow-origin");
       expect(response.headers).to.have.property("connection");
@@ -51,6 +54,9 @@ describe("Criação de filmes", function () {
     });
   });
   it("Não deve ser possível criar um filme com dados nulos", function () {
+    cy.fixture("Movies/responses/bodyErroCriarFilmeInvalido").as(
+      "erroCriarFilmeInvalido"
+    );
     cy.fixture("Movies/requests/bodyFilmeInvalido.json").then(
       (filmeInvalido) => {
         cy.request({
@@ -63,9 +69,7 @@ describe("Criação de filmes", function () {
           failOnStatusCode: false,
         }).then(function (response) {
           expect(response.status).to.equal(400);
-          expect(response.body).to.have.property("message");
-          expect(response.body).to.have.property("error");
-          expect(response.body).to.have.property("statusCode");
+          expect(response.body).to.deep.equal(this.erroCriarFilmeInvalido);
         });
       }
     );

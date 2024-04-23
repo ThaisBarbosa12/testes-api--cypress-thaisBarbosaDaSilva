@@ -1,0 +1,5 @@
+{
+  "message": "Expected property name or '}' in JSON at position 10",
+  "error": "Bad Request",
+  "statusCode": 400
+}
