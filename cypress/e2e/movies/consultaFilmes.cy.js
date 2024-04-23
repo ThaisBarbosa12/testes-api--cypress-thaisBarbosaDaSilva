@@ -2,82 +2,60 @@ import { faker } from "@faker-js/faker";
 
 const namefaker = faker.internet.userName();
 const emailfaker = faker.internet.email();
-var tokenUsuario;
-let idFilme;
-let ultimoFilme;
 
-describe("Validar Consulta de filmes", function () {
+describe("Consulta de Filmes", function () {
+  var novoUsuario;
+  var token;
+  var movieId;
+
   before(function () {
-    cy.request({
-      method: "POST",
-      url: "/users",
-      body: {
-        name: namefaker,
-        email: emailfaker,
-        password: "123456",
-      },
+    cy.criarUsuario().then((dados) => {
+      novoUsuario = dados;
     });
-    cy.request({
-      method: "POST",
-      url: "/auth/login",
-      body: {
-        email: emailfaker,
-        password: "123456",
-      },
-    }).then(function (response) {
-      tokenUsuario = response.body.accessToken;
-      cy.request({
-        method: "PATCH",
-        url: "/users/admin",
-        headers: {
-          Authorization: "Bearer " + tokenUsuario,
-        },
-      });
-      cy.request({
-        method: "POST",
-        url: "/movies",
-        body: {
-          title: "Velozes e Furiosos 10",
-          genre: "Ação",
-          description: "O fim da estrada esta chegando",
-          durationInMinutes: 140,
-          releaseYear: 2023,
-        },
-        headers: {
-          Authorization: "Bearer " + tokenUsuario,
-        },
+    cy.logarUsuario().then((response) => {
+      token = response.body.accessToken;
+    });
+    cy.promoverUsuarioAdmin().then(function () {
+      cy.criarFilme().then(function (response) {
+        movieId = response.body.id;
       });
     });
+    cy.criarReview1();
+    cy.criarReview2();
+    cy.criarReview3();
   });
-  it("Consultar por lista de filmes", function () {
-    cy.request({
-      method: "GET",
-      url: "/movies",
-    }).then(function (response) {
+  after(function () {
+    cy.deletarFilme(movieId);
+    cy.deletarUsuario(novoUsuario.id);
+  });
+
+  it("Deve ser possivel consultar uma lista de filmes", function () {
+    cy.request("GET", "/movies").then(function (response) {
       expect(response.status).to.equal(200);
       expect(response.body).to.be.an("array");
-      const listaDeFilmes = response.body;
-      ultimoFilme = listaDeFilmes[listaDeFilmes.length - 1];
-      cy.log(ultimoFilme);
     });
   });
-  it("Consultar filme por id", function () {
+  it("Deve ser possivel consultar uma filme por id", function () {
+    cy.log(
+      "Foram criadas e executadas com sucesso 3 reviews para este filme, mas ao consultá-las na api só retornará a última criada, pois cada usuário só pode ter 1 review por filme. Quando o usuario cria uma nova review para um filme que já avaliou antes, a review original é atualizada."
+    );
     cy.request({
       method: "GET",
-      url: "/movies/" + ultimoFilme.id,
+      url: "/movies/" + movieId,
     }).then(function (response) {
       expect(response.status).to.equal(200);
-      expect(response.body.id).to.be.an("number");
-      expect(response.body.title).to.be.an("string");
-      expect(response.body.description).to.be.an("string");
-      expect(response.body.genre).to.be.an("string");
-      expect(response.body.durationInMinutes).to.be.an("number");
-      expect(response.body.releaseYear).to.be.an("number");
-      expect(response.body.criticScore).to.be.an("number");
-      expect(response.body.audienceScore).to.be.an("number");
+      expect(response.body.id).to.equal(movieId);
+      expect(response.body).to.have.property("reviews");
+      expect(response.body.title).to.equal("Velozes e Furiosos 10");
+      expect(response.body.description).to.equal(
+        "O fim da estrada esta chegando"
+      );
+      expect(response.body.durationInMinutes).to.equal(140);
+      expect(response.body.genre).to.equal("Ação");
+      expect(response.body.releaseYear).to.equal(2023);
     });
   });
-  it("Consultar filme por título", function () {
+  it("Deve ser possivel consultar um filme por título", function () {
     cy.request({
       method: "GET",
       url: "/movies/search",

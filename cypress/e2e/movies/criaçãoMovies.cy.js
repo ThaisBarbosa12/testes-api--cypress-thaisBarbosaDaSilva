@@ -74,4 +74,132 @@ describe("Criação de filmes", function () {
       }
     );
   });
+  it("Não deve ser possível criar um filme com dados vazios", function () {
+    cy.fixture("Movies/responses/bodyErroCriarFilmeDadosVazios.json").as(
+      "erroCriarFilmeDadosVazios"
+    );
+    cy.fixture("Movies/requests/bodyFilmeDadosVazios.json").then(
+      (filmeDadosVazios) => {
+        cy.request({
+          method: "POST",
+          url: "/movies",
+          body: filmeDadosVazios,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(this.erroCriarFilmeDadosVazios);
+        });
+      }
+    );
+  });
+  it("Não deve ser possível criar um filme sem título", function () {
+    cy.fixture("Movies/responses/bodyErroCriarFilmeSemTitulo.json").as(
+      "erroCriarFilmeSemTitulo"
+    );
+    cy.fixture("Movies/requests/bodyCriarFilmeSemTitulo.json").then(
+      (filmeSemTitulo) => {
+        cy.request({
+          method: "POST",
+          url: "/movies",
+          body: filmeSemTitulo,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(this.erroCriarFilmeSemTitulo);
+        });
+      }
+    );
+  });
+  it("Não deve ser possível criar um filme sem gênero", function () {
+    cy.fixture("Movies/responses/bodyErroCriarFilmeSemGenero.json").as(
+      "erroCriarFilmeSemGenero"
+    );
+    cy.fixture("Movies/requests/bodyCriarFilmeSemGenero.json").then(
+      (filmeSemGenero) => {
+        cy.request({
+          method: "POST",
+          url: "/movies",
+          body: filmeSemGenero,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(this.erroCriarFilmeSemGenero);
+        });
+      }
+    );
+  });
+  it("Não deve ser possível criar um filme sem descrição", function () {
+    cy.fixture("Movies/responses/bodyErroCriarFilmeSemDescrição.json").as(
+      "erroCriarFilmeSemDescrição"
+    );
+    cy.fixture("Movies/requests/bodyCriarFilmeSemDescrição.json").then(
+      (filmeSemDescrição) => {
+        cy.request({
+          method: "POST",
+          url: "/movies",
+          body: filmeSemDescrição,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(this.erroCriarFilmeSemDescrição);
+        });
+      }
+    );
+  });
+  it("Não deve ser possível criar um filme inserindo número no campo título", function () {
+    cy.fixture("Movies/responses/bodyErroCriarFilmeNumeroNoTitulo.json").as(
+      "erroCriarFilmeNumeroNoTitulo"
+    );
+    cy.fixture("Movies/requests/bodyCriarFilmeNumeroNoTitulo.json").then(
+      (filmeNumeroNoTitulo) => {
+        cy.request({
+          method: "POST",
+          url: "/movies",
+          body: filmeNumeroNoTitulo,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(
+            this.erroCriarFilmeNumeroNoTitulo
+          );
+        });
+      }
+    );
+  });
+  it("Não deve ser possível criar um filme inserindo string no campo releaseYear", function () {
+    cy.fixture("Movies/responses/bodyErroCriarFilmeStringNoYear.json").as(
+      "erroCriarFilmeStringNoYear"
+    );
+    cy.fixture("Movies/requests/bodyCriarFilmeStringNoYear.json").then(
+      (filmeStringNoYear) => {
+        cy.request({
+          method: "POST",
+          url: "/movies",
+          body: filmeStringNoYear,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(this.erroCriarFilmeStringNoYear);
+        });
+      }
+    );
+  });
 });

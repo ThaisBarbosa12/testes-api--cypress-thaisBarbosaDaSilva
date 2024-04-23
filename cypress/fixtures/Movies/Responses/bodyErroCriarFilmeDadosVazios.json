@@ -1,13 +1,10 @@
 {
   "message": [
     "title must be longer than or equal to 1 characters",
-    "title must be a string",
     "title should not be empty",
     "genre must be longer than or equal to 1 characters",
-    "genre must be a string",
     "genre should not be empty",
     "description must be longer than or equal to 1 characters",
-    "description must be a string",
     "description should not be empty",
     "durationInMinutes must be a number conforming to the specified constraints",
     "durationInMinutes should not be empty",

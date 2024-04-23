@@ -1,0 +1,7 @@
+{
+  "message": [
+    "releaseYear must be a number conforming to the specified constraints"
+  ],
+  "error": "Bad Request",
+  "statusCode": 400
+}

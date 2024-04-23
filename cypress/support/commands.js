@@ -13,6 +13,7 @@ Cypress.Commands.add("criarUsuario", function () {
       email: emailfaker,
       password: "123456",
     })
+    .as("criarUsuario")
     .then((response) => {
       return response.body;
       id = response.body.id;
@@ -24,18 +25,21 @@ Cypress.Commands.add("logarUsuario", function () {
       email: emailfaker,
       password: "123456",
     })
+    .as("logarUsuario")
     .then((response) => {
       token = response.body.accessToken;
     });
 });
 Cypress.Commands.add("promoverUsuarioAdmin", function () {
-  return cy.request({
-    method: "PATCH",
-    url: "/users/admin",
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
+  return cy
+    .request({
+      method: "PATCH",
+      url: "/users/admin",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
+    .as("promoverUsuarioAdmin");
 });
 Cypress.Commands.add("criarFilme", function () {
   return cy
@@ -53,51 +57,58 @@ Cypress.Commands.add("criarFilme", function () {
         Authorization: "Bearer " + token,
       },
     })
+    .as("criarFilme")
     .then(function (response) {
       movieId = response.body.id;
     });
 });
 Cypress.Commands.add("criarReview1", function () {
-  return cy.request({
-    method: "POST",
-    url: "/users/review",
-    body: {
-      movieId: movieId,
-      score: 4,
-      reviewText: "Não são furiosos, mas sim velozes",
-    },
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
+  return cy
+    .request({
+      method: "POST",
+      url: "/users/review",
+      body: {
+        movieId: movieId,
+        score: 4,
+        reviewText: "Não são furiosos, mas sim velozes",
+      },
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
+    .as("criarReview1");
 });
 Cypress.Commands.add("criarReview2", function () {
-  return cy.request({
-    method: "POST",
-    url: "/users/review",
-    body: {
-      movieId: movieId,
-      score: 5,
-      reviewText: "Realmente são muito furiosos e velozes",
-    },
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
+  return cy
+    .request({
+      method: "POST",
+      url: "/users/review",
+      body: {
+        movieId: movieId,
+        score: 5,
+        reviewText: "Realmente são muito furiosos e velozes",
+      },
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
+    .as("criarReview2");
 });
 Cypress.Commands.add("criarReview3", function () {
-  return cy.request({
-    method: "POST",
-    url: "/users/review",
-    body: {
-      movieId: movieId,
-      score: 2,
-      reviewText: "Não são furiosos, nem velozes",
-    },
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
+  return cy
+    .request({
+      method: "POST",
+      url: "/users/review",
+      body: {
+        movieId: movieId,
+        score: 2,
+        reviewText: "Não são furiosos, nem velozes",
+      },
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    })
+    .as("criarReview3");
 });
 Cypress.Commands.add("deletarUsuario", function (id) {
   cy.request({
@@ -106,7 +117,7 @@ Cypress.Commands.add("deletarUsuario", function (id) {
     headers: {
       Authorization: "Bearer " + token,
     },
-  });
+  }).as("deletarUsuario");
 });
 Cypress.Commands.add("deletarFilme", function (movieId) {
   cy.request({
@@ -115,5 +126,5 @@ Cypress.Commands.add("deletarFilme", function (movieId) {
     headers: {
       Authorization: "Bearer " + token,
     },
-  });
+  }).as("deletarFilme");
 });

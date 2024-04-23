@@ -53,7 +53,7 @@ describe("Atualização de filmes", function () {
       }
     );
   });
-  it("Não deve ser possivel atualizar um filme com dados nulos", function () {
+  it("Não deve ser possivel atualizar um filme com dados vazios", function () {
     cy.fixture("Movies/responses/bodyErroAtualizarFilmeNulo").as(
       "erroAtualizarFilmeNulo"
     );
@@ -70,6 +70,29 @@ describe("Atualização de filmes", function () {
         }).then(function (response) {
           expect(response.status).to.equal(400);
           expect(response.body).to.deep.equal(this.erroAtualizarFilmeNulo);
+        });
+      }
+    );
+  });
+  it("Não deve ser possivel atualizar um filme com id invalido", function () {
+    cy.fixture("Movies/responses/bodyErroAtualizarFilmeIdInvalido.json").as(
+      "erroAtualizarFilmeIdInvalido"
+    );
+    cy.fixture("Movies/requests/bodyAtualizarFilmeIdInvalido.json").then(
+      (AtualizarFilmeIdInvalido) => {
+        cy.request({
+          method: "PUT",
+          url: "/movies/" + 2503698558891532645896,
+          body: AtualizarFilmeIdInvalido,
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          failOnStatusCode: false,
+        }).then(function (response) {
+          expect(response.status).to.equal(400);
+          expect(response.body).to.deep.equal(
+            this.erroAtualizarFilmeIdInvalido
+          );
         });
       }
     );
